@@ -20,6 +20,8 @@
     //"noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
 
     // Modules options
     "resolveJsonModule": true,

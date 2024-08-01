@@ -16,5 +16,6 @@ export const createGetEventsController = ({
     const tickets = await ticketsDAL.getTicketsByEvent(event.id);
     events[i].availableTickets = tickets.filter(ticket => ticket.status === 'available');
   }
+  res.setHeader('Cache-Control', 'no-store');
   res.json(events);
 };

@@ -1,6 +1,6 @@
 # Eventim Backend Test
 
-Welcome to the Eventim backend test for new hires (Mid Level). The purpose of this test is to evaluate how you work with an existing codebase and extend it with new functionality.
+Welcome to the Eventim backend test for new hires (Senior Level). The purpose of this test is to evaluate how you work with an existing codebase, extend it with new functionality, and take ownership of code quality.
 
 ## Tech Stack
 
@@ -52,6 +52,14 @@ Implement a settings feature backed by MongoDB (the Mongo instance is already ru
 
 You decide the shape of the settings document. Look at the existing code structure to understand how the project is organized and follow the same patterns.
 
-### 2. Tests
+### 2. Pagination
 
-All new code you produce must be unit tested. Jest and ts-jest are already configured.
+`GET /events` currently returns a hardcoded number of results. Implement proper pagination support — the consumer should be able to request a specific page and page size. Think about the response shape and how the frontend would use it.
+
+### 3. Code quality
+
+Review the existing codebase before submitting. If you find any bugs, performance issues, or code quality concerns, fix them. In your pull request description, explain what you changed and why.
+
+### 4. Tests
+
+All new code must be unit tested. Any existing code you modify should also have tests.

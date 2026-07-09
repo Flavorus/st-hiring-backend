@@ -1,34 +1,57 @@
-# Seetickets Backend test
+# Eventim Backend Test
 
-Welcome to the Seetickets backend test for new Hires (Mid Level). The purpose of this test is to evaluate a few assigned tasks given a codebase.
+Welcome to the Eventim backend test for new hires (Mid Level). The purpose of this test is to evaluate how you work with an existing codebase and extend it with new functionality.
 
 ## Tech Stack
 
-- Node 18.16.0 -> We want you to use this version of Node JS
+- Node 22
 - Express JS
-- Postgres
-- Mongo DB
+- PostgreSQL
+- MongoDB
 - Docker
 
-This API uses 2 data sources, one SQL and one NoSQL. Events and Tickets are stored in a SQL database while the settings should be stored as documents in Mongo DB.
+This API uses two data sources: Events and Tickets are stored in PostgreSQL, and settings should be stored as documents in MongoDB.
 
-## What will you need to have installed to do this test
+## Requirements
 
-- Docker (With docker compose to run the containers for the DBs)
-- NVM to use the node version in the project
+- Docker with Docker Compose (to run the databases)
+- NVM (to switch to the Node version used in the project)
 
-## Installing and running the project
+## Setup
 
-- Fork this repository into your own GitHub
-- Clone the fork in your machine
-- Run yarn install to install the packages (We don't want to use NPM as all of our projects use yarn)
-- Run `docker compose up` to get the databases up and running
+1. Fork this repository into your own GitHub account
+2. Clone the fork to your machine
+3. Run `nvm use` to switch to the correct Node version
+4. Run `yarn install` to install dependencies (we use Yarn, not npm)
+5. Copy `.env.example` to `.env` — the defaults match the Docker Compose config and work out of the box
+6. Run `docker compose up -d` to start the databases
 
-### Running migrations for the Postgres DB
+### Database setup
 
-- Run `yarn migrations:latest` to migrate the DB
-- Run `yarn db:seed` at least 2 times to create some data in the database, The more you run it the more data you will have to work with
+```bash
+yarn migrations:latest   # run PostgreSQL migrations
+yarn db:seed             # seed the database — run this multiple times to populate more data
+```
 
-### Run the API
+### Start the API
 
-- Run `yarn start` to start the express API (it uses nodemon to listen to code changes)
+```bash
+yarn start   # starts the server with nodemon on port 3000
+```
+
+Verify it's running: `GET http://localhost:3000/health` should return `{ "status": "ok" }`.
+
+## Tasks
+
+### 1. Settings feature
+
+Implement a settings feature backed by MongoDB (the Mongo instance is already running via Docker Compose):
+
+- `GET /settings` — return the current settings document
+- `POST /settings` — create or update the settings document
+
+You decide the shape of the settings document. Look at the existing code structure to understand how the project is organized and follow the same patterns.
+
+### 2. Tests
+
+All new code you produce must be unit tested. Jest and ts-jest are already configured.

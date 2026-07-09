@@ -1,21 +1,23 @@
+import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import { knex } from 'knex';
-import dbConfig  from './knexfile';
+import dbConfig from './knexfile';
 import { createEventDAL } from './dal/events.dal';
 import { createTicketDAL } from './dal/tickets.dal';
 import { createGetEventsController } from './controllers/get-events';
 
-// initialize Knex
 const Knex = knex(dbConfig.development);
 
-// Initialize DALs
 const eventDAL = createEventDAL(Knex);
 const TicketDAL = createTicketDAL(Knex);
 
-
 const app = express();
 
-app.use('/health', (req, res) => {
+app.use(cors());
+app.use(express.json());
+
+app.use('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
@@ -26,5 +28,5 @@ app.use('/', (_req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Server Started')
+  console.log('Server Started');
 });

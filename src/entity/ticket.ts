@@ -1,6 +1,6 @@
 export interface Ticket {
-  id: string;
-  eventId: string;
+  id: number;
+  eventId: number;
   type: string;
   status: string;
   price: number;

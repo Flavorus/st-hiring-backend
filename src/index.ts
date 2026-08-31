@@ -10,6 +10,7 @@ import { createGetEventsController } from './controllers/get-events';
 import { createSettingsDAL, SettingsDocument } from './dal/settings.dal';
 import { createGetSettingsController } from './controllers/get-settings';
 import { createPostSettingsController } from './controllers/post-settings';
+import { createSettingsService } from './services/settings.service';
 
 const knexClient = knex(dbConfig.development);
 const mongoClient = new MongoClient(process.env.MONGO_URI ?? 'mongodb://root:example@localhost:27017');
@@ -36,9 +37,10 @@ const startServer = async () => {
     .collection<SettingsDocument>('settings');
 
   const settingsDAL = createSettingsDAL(settingsCollection);
+  const settingsService = createSettingsService({ settingsDAL });
 
-  app.get('/settings', createGetSettingsController({ settingsDAL }));
-  app.post('/settings', createPostSettingsController({ settingsDAL }));
+  app.get('/settings', createGetSettingsController({ settingsService }));
+  app.post('/settings', createPostSettingsController({ settingsService }));
 
   app.use('/', (_req, res) => {
     res.json({ message: 'Hello API' });

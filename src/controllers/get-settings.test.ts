@@ -1,22 +1,37 @@
 import { createGetSettingsController } from './get-settings';
+import { SettingsService } from '../services/settings.service';
+
+interface MockResponse {
+  status: jest.MockedFunction<(code: number) => MockResponse>;
+  json: jest.MockedFunction<(body: unknown) => MockResponse>;
+}
+
+const createMockResponse = (): MockResponse => {
+  const response = {
+    status: jest.fn(),
+    json: jest.fn(),
+  } as unknown as MockResponse;
+
+  response.status.mockReturnValue(response);
+  response.json.mockReturnValue(response);
+
+  return response;
+};
 
 describe('createGetSettingsController', () => {
   it('responds with 404 when settings are not found', async () => {
-    const settingsDAL = {
-      getSettings: jest.fn().mockResolvedValue(null),
-    } as any;
+    const settingsService: SettingsService = {
+      getCurrentSettings: jest.fn().mockResolvedValue(null),
+      upsertCurrentSettings: jest.fn(),
+    };
 
-    const controller = createGetSettingsController({ settingsDAL });
+    const controller = createGetSettingsController({ settingsService });
+    const response = createMockResponse();
 
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    } as any;
+    await controller({} as never, response as never);
 
-    await controller({} as any, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Settings not found' });
+    expect(response.status).toHaveBeenCalledWith(404);
+    expect(response.json).toHaveBeenCalledWith({ message: 'Settings not found' });
   });
 
   it('responds with settings when found', async () => {
@@ -29,20 +44,32 @@ describe('createGetSettingsController', () => {
       updatedAt: new Date(),
     };
 
-    const settingsDAL = {
-      getSettings: jest.fn().mockResolvedValue(settings),
-    } as any;
+    const settingsService: SettingsService = {
+      getCurrentSettings: jest.fn().mockResolvedValue(settings),
+      upsertCurrentSettings: jest.fn(),
+    };
 
-    const controller = createGetSettingsController({ settingsDAL });
+    const controller = createGetSettingsController({ settingsService });
+    const response = createMockResponse();
 
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    } as any;
+    await controller({} as never, response as never);
 
-    await controller({} as any, res);
+    expect(response.status).not.toHaveBeenCalled();
+    expect(response.json).toHaveBeenCalledWith(settings);
+  });
 
-    expect(res.status).not.toHaveBeenCalled();
-    expect(res.json).toHaveBeenCalledWith(settings);
+  it('responds with 500 when service throws unexpected error', async () => {
+    const settingsService: SettingsService = {
+      getCurrentSettings: jest.fn().mockRejectedValue(new Error('Mongo failed')),
+      upsertCurrentSettings: jest.fn(),
+    };
+
+    const controller = createGetSettingsController({ settingsService });
+    const response = createMockResponse();
+
+    await controller({} as never, response as never);
+
+    expect(response.status).toHaveBeenCalledWith(500);
+    expect(response.json).toHaveBeenCalledWith({ message: 'Internal server error' });
   });
 });

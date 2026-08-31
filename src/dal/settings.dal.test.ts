@@ -1,5 +1,11 @@
-import { createSettingsDAL } from './settings.dal';
+import { Collection } from 'mongodb';
+import { createSettingsDAL, SettingsDocument } from './settings.dal';
 import { SettingsInput } from '../entity/settings';
+
+interface SettingsCollectionMock extends Pick<Collection<SettingsDocument>, 'findOne' | 'findOneAndUpdate'> {
+  findOne: jest.Mock;
+  findOneAndUpdate: jest.Mock;
+}
 
 describe('createSettingsDAL', () => {
   const basePayload: SettingsInput = {
@@ -13,9 +19,9 @@ describe('createSettingsDAL', () => {
     const collection = {
       findOne: jest.fn().mockResolvedValue(null),
       findOneAndUpdate: jest.fn(),
-    } as any;
+    } as unknown as SettingsCollectionMock;
 
-    const dal = createSettingsDAL(collection);
+    const dal = createSettingsDAL(collection as unknown as Collection<SettingsDocument>);
     const result = await dal.getSettings();
 
     expect(result).toBeNull();
@@ -36,9 +42,9 @@ describe('createSettingsDAL', () => {
     const collection = {
       findOne: jest.fn(),
       findOneAndUpdate: jest.fn().mockResolvedValue(upsertedSettings),
-    } as any;
+    } as unknown as SettingsCollectionMock;
 
-    const dal = createSettingsDAL(collection);
+    const dal = createSettingsDAL(collection as unknown as Collection<SettingsDocument>);
     const result = await dal.upsertSettings(basePayload);
 
     expect(result).toEqual(upsertedSettings);
@@ -67,9 +73,9 @@ describe('createSettingsDAL', () => {
     const collection = {
       findOne: jest.fn(),
       findOneAndUpdate: jest.fn().mockResolvedValue(null),
-    } as any;
+    } as unknown as SettingsCollectionMock;
 
-    const dal = createSettingsDAL(collection);
+    const dal = createSettingsDAL(collection as unknown as Collection<SettingsDocument>);
 
     await expect(dal.upsertSettings(basePayload)).rejects.toThrow(
       'Failed to upsert settings document',

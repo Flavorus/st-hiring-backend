@@ -1,17 +1,21 @@
 import { Request, Response } from 'express';
-import { SettingsDAL } from '../dal/settings.dal';
+import { SettingsService } from '../services/settings.service';
 
 export const createGetSettingsController = ({
-  settingsDAL,
+  settingsService,
 }: {
-  settingsDAL: SettingsDAL;
+  settingsService: SettingsService;
 }) => async (_req: Request, res: Response) => {
-  const settings = await settingsDAL.getSettings();
+  try {
+    const settings = await settingsService.getCurrentSettings();
 
-  if (!settings) {
-    res.status(404).json({ message: 'Settings not found' });
-    return;
+    if (!settings) {
+      res.status(404).json({ message: 'Settings not found' });
+      return;
+    }
+
+    res.json(settings);
+  } catch (_error) {
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  res.json(settings);
 };

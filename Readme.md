@@ -1,57 +1,175 @@
 # Eventim Backend Test
 
-Welcome to the Eventim backend test for new hires (Mid Level). The purpose of this test is to evaluate how you work with an existing codebase and extend it with new functionality.
+Express API for the Eventim hiring assessment. Events and Tickets live in PostgreSQL (Knex). Settings live in MongoDB (native MongoDB driver).
+
+Routes follow **Controller → DAL → Entity**.
 
 ## Tech Stack
 
 - Node 22
 - Express JS
-- PostgreSQL
-- MongoDB
+- PostgreSQL (Knex)
+- MongoDB (native driver)
 - Docker
-
-This API uses two data sources: Events and Tickets are stored in PostgreSQL, and settings should be stored as documents in MongoDB.
 
 ## Requirements
 
-- Docker with Docker Compose (to run the databases)
-- NVM (to switch to the Node version used in the project)
+- Docker with Docker Compose (databases only; Express is not a Compose service)
+- NVM (run `nvm use` so Node matches `.nvmrc`)
+- Yarn (not npm). This repo uses the committed Yarn 3.6.1 binary.
 
 ## Setup
 
-1. Fork this repository into your own GitHub account
-2. Clone the fork to your machine
-3. Run `nvm use` to switch to the correct Node version
-4. Run `yarn install` to install dependencies (we use Yarn, not npm)
-5. Copy `.env.example` to `.env` — the defaults match the Docker Compose config and work out of the box
-6. Run `docker compose up -d` to start the databases
+1. Clone this repository
+2. Run `nvm use` to switch to the Node version in `.nvmrc`
+3. Run `yarn install` to install dependencies
+4. Copy `.env.example` to `.env`. The defaults match Docker Compose and work out of the box.
+5. Run `docker compose up -d` to start PostgreSQL, MongoDB, and the optional database UIs (Adminer, mongo-express)
+
+Express is a local Node process, not a Docker Compose service.
 
 ### Database setup
 
 ```bash
 yarn migrations:latest   # run PostgreSQL migrations
-yarn db:seed             # seed the database — run this multiple times to populate more data
+yarn db:seed             # seed the database. Run this multiple times to populate more data.
 ```
 
 ### Start the API
 
 ```bash
-yarn start   # starts the server with nodemon on port 3000
+yarn start   # nodemon, listens on port 3000
 ```
 
-Verify it's running: `GET http://localhost:3000/health` should return `{ "status": "ok" }`.
+Verify: `GET http://localhost:3000/health` should return `{ "status": "ok" }`.
 
-## Tasks
+The frontend is a separate repository. After this API is running, start it with Vite and open [http://localhost:5173](http://localhost:5173). Both processes must run at the same time. The browser talks to Vite; Vite proxies `/events` and `/settings` to this API on port 3000.
 
-### 1. Settings feature
+## API
 
-Implement a settings feature backed by MongoDB (the Mongo instance is already running via Docker Compose):
+- `GET /health` - `{ "status": "ok" }`
+- `GET /events` - events and tickets from PostgreSQL
+- `GET /settings` and `POST /settings` - see Settings API below
 
-- `GET /settings` — return the current settings document
-- `POST /settings` — create or update the settings document
+## Settings API
 
-You decide the shape of the settings document. Look at the existing code structure to understand how the project is organized and follow the same patterns.
+### Settings data model
 
-### 2. Tests
+Public Settings JSON has exactly these fields:
 
-All new code you produce must be unit tested. Jest and ts-jest are already configured.
+| Field | Type | Description |
+|---|---|---|
+| `siteName` | string | Required. |
+| `contactEmail` | string | Required. Backend checks that the value is a string, not that it is a valid email. |
+| `maintenanceMode` | boolean | Required. `false` is valid. |
+
+### Persistence
+
+MongoDB collection `settings` stores one document:
+
+```json
+{
+  "_id": "current",
+  "siteName": "See Tickets",
+  "contactEmail": "test@example.com",
+  "maintenanceMode": false
+}
+```
+
+`_id = "current"` is the singleton key. It is not part of the public API. Responses omit `_id` and return only the three fields above.
+
+### GET /settings
+
+Returns the current Settings object.
+
+| Status | When |
+|---|---|
+| 200 | Document exists |
+| 404 | No Settings document yet (before the first successful `POST /settings`) |
+| 500 | Database or server error |
+
+200:
+
+```json
+{
+  "siteName": "See Tickets",
+  "contactEmail": "test@example.com",
+  "maintenanceMode": false
+}
+```
+
+404:
+
+```json
+{ "error": "Settings not found" }
+```
+
+500:
+
+```json
+{ "error": "Internal server error" }
+```
+
+### POST /settings
+
+JSON body must include all three fields with the types above. Extra persistence keys such as `_id` are not part of the accepted Settings object.
+
+| Status | When |
+|---|---|
+| 200 | Saved. Response is the saved Settings object (no `_id`) |
+| 400 | Missing fields, wrong types (for example `maintenanceMode` as a string), or a non-object body |
+| 500 | Database or server error |
+
+Request body (and 200 response):
+
+```json
+{
+  "siteName": "GTS Assessment",
+  "contactEmail": "test@example.com",
+  "maintenanceMode": true
+}
+```
+
+400:
+
+```json
+{ "error": "Invalid request" }
+```
+
+500:
+
+```json
+{ "error": "Internal server error" }
+```
+
+### API response shape
+
+Public JSON is only:
+
+```json
+{
+  "siteName": "...",
+  "contactEmail": "...",
+  "maintenanceMode": false
+}
+```
+
+`_id` is never returned.
+
+## Tests
+
+```bash
+yarn test
+```
+
+## Architecture Decisions
+
+**Database separation.** Events and Tickets stay on PostgreSQL through Knex. Settings uses MongoDB through the native driver. The Events stack was already Knex/Postgres; Settings was added as a document store without migrating or rewriting Events.
+
+**Settings singleton.** The app has one Settings record, stored as MongoDB `_id = "current"`. That id is a persistence key only. The API returns `siteName`, `contactEmail`, and `maintenanceMode`. It does not expose `_id`.
+
+**Layering.** `index.ts` boots the process and registers routes. Controllers own HTTP and validation. DALs own database access. Entities own shapes. Settings follows the existing Controller → DAL → Entity layout. A service, repository, or DI container would add types without changing the request path.
+
+**MongoDB connection.** One `MongoClient` is created, connected at startup, and the connected `Db` is passed into the Settings DAL. Settings routes are registered only after `connect()` succeeds, so those handlers never run against a closed client. If MongoDB is down, the process exits instead of serving a half-ready API.
+
+**Error responses.** Controllers return generic JSON such as `{ "error": "Invalid request" }` or `{ "error": "Internal server error" }`. Driver errors stay on the server so connection details and stack traces do not reach the browser.

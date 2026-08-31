@@ -1,5 +1,9 @@
 import { SettingsDAL } from '../dal/settings.dal';
 import { Settings, SettingsInput } from '../entity/settings';
+import {
+  SETTINGS_VALIDATION_MESSAGES,
+  SETTINGS_VALIDATION_RULES,
+} from './constants';
 
 export class SettingsValidationError extends Error {
   constructor(message: string) {
@@ -20,29 +24,31 @@ export interface SettingsService {
 
 const normalizeSettingsPayload = (payload: unknown): SettingsInput => {
   if (!payload || typeof payload !== 'object') {
-    throw new SettingsValidationError('Body must be a JSON object');
+    throw new SettingsValidationError(SETTINGS_VALIDATION_MESSAGES.bodyMustBeObject);
   }
 
   const candidate = payload as Partial<SettingsInput>;
 
   if (typeof candidate.salesEnabled !== 'boolean') {
-    throw new SettingsValidationError('salesEnabled must be a boolean');
+    throw new SettingsValidationError(SETTINGS_VALIDATION_MESSAGES.salesEnabledMustBeBoolean);
   }
 
   if (typeof candidate.defaultCurrency !== 'string' || candidate.defaultCurrency.trim() === '') {
-    throw new SettingsValidationError('defaultCurrency must be a non-empty string');
+    throw new SettingsValidationError(SETTINGS_VALIDATION_MESSAGES.defaultCurrencyMustBeNonEmptyString);
   }
 
   if (typeof candidate.supportEmail !== 'string' || !candidate.supportEmail.includes('@')) {
-    throw new SettingsValidationError('supportEmail must be a valid email string');
+    throw new SettingsValidationError(SETTINGS_VALIDATION_MESSAGES.supportEmailMustBeValid);
   }
 
   if (
     typeof candidate.ticketHoldMinutes !== 'number'
     || !Number.isInteger(candidate.ticketHoldMinutes)
-    || candidate.ticketHoldMinutes < 1
+    || candidate.ticketHoldMinutes < SETTINGS_VALIDATION_RULES.minTicketHoldMinutes
   ) {
-    throw new SettingsValidationError('ticketHoldMinutes must be an integer greater than 0');
+    throw new SettingsValidationError(
+      SETTINGS_VALIDATION_MESSAGES.ticketHoldMinutesMustBePositiveInteger,
+    );
   }
 
   return {

@@ -1,6 +1,6 @@
 import { Collection } from 'mongodb';
-import { createSettingsDAL, SettingsDocument } from './settings.dal';
-import { SettingsInput } from '../entity/settings';
+import { createSettingsDAL, SettingsDocument } from '../settings.dal';
+import { SettingsInput } from '../../entity/settings';
 
 interface SettingsCollectionMock extends Pick<Collection<SettingsDocument>, 'findOne' | 'findOneAndUpdate'> {
   findOne: jest.Mock;

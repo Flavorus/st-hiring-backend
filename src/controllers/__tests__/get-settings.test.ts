@@ -1,5 +1,5 @@
-import { createGetSettingsController } from './get-settings';
-import { SettingsService } from '../services/settings.service';
+import { createGetSettingsController } from '../get-settings';
+import { SettingsService } from '../../services/settings.service';
 
 interface MockResponse {
   status: jest.MockedFunction<(code: number) => MockResponse>;

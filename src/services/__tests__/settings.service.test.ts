@@ -1,8 +1,8 @@
 import {
   createSettingsService,
   SettingsValidationError,
-} from './settings.service';
-import { Settings } from '../entity/settings';
+} from '../settings.service';
+import { Settings } from '../../entity/settings';
 
 describe('createSettingsService', () => {
   const existingSettings: Settings = {

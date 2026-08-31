@@ -1,8 +1,8 @@
-import { createPostSettingsController } from './post-settings';
+import { createPostSettingsController } from '../post-settings';
 import {
   SettingsService,
   SettingsValidationError,
-} from '../services/settings.service';
+} from '../../services/settings.service';
 
 interface MockResponse {
   status: jest.MockedFunction<(code: number) => MockResponse>;

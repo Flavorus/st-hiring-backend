@@ -14,7 +14,7 @@
         "migrations:make": "yarn knex migrate:make --migrations-directory src/database/migrations ",
         "migrations:latest": "yarn knex migrate:latest --knexfile ./src/knexfile.ts --migrations-directory ./database/migrations",
         "migrations:down": "yarn knex migrate:down --knexfile ./src/knexfile.ts --migrations-directory ./database/migrations",
-        "db:seed": "yarn knex seed:run --knexfile ./src/knexfile.ts --seeds-directory ./database/seeds"
+        "db:seed": "yarn knex seed:run --knexfile ./src/knexfile.ts --migrations-directory ./database/seeds"
     },
     "packageManager": "yarn@3.6.1",
     "dependencies": {

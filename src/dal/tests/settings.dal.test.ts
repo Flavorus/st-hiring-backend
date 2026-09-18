@@ -58,7 +58,7 @@ describe('When using createSettingsDAL', () => {
     });
   });
 
-  describe('upsertSettings', () => {
+  describe('When using upsertSettings', () => {
     it('returns created true when MongoDB inserts the document', async () => {
       const now = new Date('2026-09-17T14:00:00.000Z');
       jest.useFakeTimers().setSystemTime(now);

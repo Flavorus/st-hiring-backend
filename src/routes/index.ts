@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { EventDAL } from '../dal/events.dal';
 import { TicketsDAL } from '../dal/tickets.dal';
 import { SettingsDAL } from '../dal/settings.dal';
-import { createGetEventsController } from '../controllers/get-events';
+import { eventsController } from '../controllers/get-events';
 import { settingsController } from '../controllers/settings';
 import { validateSettings } from '../middleware/validateSettings';
 import { asyncHandler } from '../middleware/asyncHandler'
@@ -12,6 +12,7 @@ export const setupRoutes = (
   { eventDAL, ticketDAL, settingsDAL }: { eventDAL: EventDAL; ticketDAL: TicketsDAL; settingsDAL: SettingsDAL }
 ) => {
   const settings = settingsController({ settingsDAL });
+  const events = eventsController({eventsDAL: eventDAL})
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });
@@ -21,7 +22,7 @@ export const setupRoutes = (
     res.json({ message: 'Hello API' });
   });
 
-  app.use('/events', asyncHandler(createGetEventsController({ eventsDAL: eventDAL, ticketsDAL: ticketDAL })));
+  app.get('/events', asyncHandler(events.getEvents));
   app.get('/settings', asyncHandler(settings.getSettings));
   app.post('/settings', validateSettings, asyncHandler(settings.postSettings));
 

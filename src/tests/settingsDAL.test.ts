@@ -47,13 +47,7 @@ describe('SettingsDAL', () => {
       const input = {
         supportEmail: 'new@test.com',
         companyName: 'NewCo',
-        enableNotifications: true,
-        maxTicketsPerOrder: 5,
         maxTicketsPerEvent: 500,
-        defaultTicketPrice: 25,
-        enableWaitlist: true,
-        enableReviews: false,
-        enableRefunds: true,
       };
 
       const result = await settingsDAL.upsertSettings(input as any);

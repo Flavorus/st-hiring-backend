@@ -73,26 +73,14 @@ describe('SettingsController', () => {
       mockSettingsDAL.upsertSettings.mockResolvedValue({
         supportEmail: 'new@test.com',
         companyName: 'NewCo',
-        enableNotifications: true,
-        maxTicketsPerOrder: 10,
         maxTicketsPerEvent: 10000,
-        defaultTicketPrice: 50,
-        enableWaitlist: true,
-        enableReviews: false,
-        enableRefunds: true,
       });
 
       const req = {
         body: {
           supportEmail: 'new@test.com',
           companyName: 'NewCo',
-          enableNotifications: true,
-          maxTicketsPerOrder: 10,
           maxTicketsPerEvent: 10000,
-          defaultTicketPrice: 50,
-          enableWaitlist: true,
-          enableReviews: false,
-          enableRefunds: true,
         },
       };
 
@@ -150,9 +138,7 @@ describe('SettingsController', () => {
         expect.objectContaining({
           supportEmail: 'custom@email.com',
           companyName: DEFAULT_SETTINGS.companyName,
-          enableNotifications: DEFAULT_SETTINGS.enableNotifications,
-          maxTicketsPerOrder: DEFAULT_SETTINGS.maxTicketsPerOrder,
-          enableRefunds: DEFAULT_SETTINGS.enableRefunds,
+          maxTicketsPerEvent: DEFAULT_SETTINGS.maxTicketsPerEvent,
         })
       );
       expect(mockRes.status).toHaveBeenCalledWith(201);
@@ -167,12 +153,10 @@ describe('SettingsController', () => {
       mockSettingsDAL.getSettings.mockResolvedValue({
         supportEmail: 'old@test.com',
         companyName: 'OldCo',
-        enableNotifications: true,
       });
       mockSettingsDAL.upsertSettings.mockResolvedValue({
         supportEmail: 'new@test.com',
         companyName: 'OldCo',
-        enableNotifications: true,
       });
 
       const req = {
@@ -187,7 +171,6 @@ describe('SettingsController', () => {
         expect.objectContaining({
           supportEmail: 'new@test.com',
           companyName: 'OldCo',
-          enableNotifications: true,
         })
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);

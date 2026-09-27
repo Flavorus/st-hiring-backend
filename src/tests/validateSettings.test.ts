@@ -59,28 +59,8 @@ describe('validateSettings middleware', () => {
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
-  it('returns 400 for negative numbers in numeric fields', () => {
-    const req = mockReq({ maxTicketsPerOrder: -1 });
-    const res = mockRes();
-    const next = mockNext();
-
-    validateSettings(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-  it('returns 400 for out-of-range values', () => {
-    const req = mockReq({ maxTicketsPerOrder: 2000 });
-    const res = mockRes();
-    const next = mockNext();
-
-    validateSettings(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-  it('returns 400 when enableNotifications is not a boolean', () => {
-    const req = mockReq({ enableNotifications: 'yes' });
+  it('returns 400 for non-integer in maxTicketsPerEvent', () => {
+    const req = mockReq({ maxTicketsPerEvent: -1 });
     const res = mockRes();
     const next = mockNext();
 

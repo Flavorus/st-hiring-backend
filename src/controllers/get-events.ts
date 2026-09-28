@@ -9,7 +9,7 @@ const parseToInteger = (value: string | undefined, defaultVal: number): number =
 
 export const eventsController = ({eventsDAL}: {eventsDAL: EventDAL}) => ({
   async getEvents(req: Request, res: Response)  {
-    let limit = parseToInteger(req.query?.limit as string, 20);
+    let limit = parseToInteger(req.query?.limit as string, 50);
     const offset = parseToInteger(req.query?.offset as string, 0);
 
     if (limit > 100) limit = 100;
@@ -19,4 +19,6 @@ export const eventsController = ({eventsDAL}: {eventsDAL: EventDAL}) => ({
     res.json(result);
   }
 
-}) ;
+});
+
+export type EventsController = ReturnType<typeof eventsController>;

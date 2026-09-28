@@ -24,3 +24,5 @@ export const settingsController = ({ settingsDAL }: { settingsDAL: SettingsDAL }
    
   },
 });
+
+export type SettingsController = ReturnType<typeof settingsController>;

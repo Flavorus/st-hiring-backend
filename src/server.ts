@@ -5,9 +5,10 @@ import dbConfig from './knexfile';
 import { mongoClient } from './mongodb';
 import { connectMongo } from './mongodb';
 import { createEventDAL } from './dal/events.dal';
-import { createTicketDAL } from './dal/tickets.dal';
 import { createSettingsDAL } from './dal/settings.dal';
 import { setupRoutes } from './routes';
+import { eventsController } from './controllers/get-events';
+import { settingsController } from './controllers/settings';
 
 export async function setupServer(app) {
   const Knex = knex(dbConfig.development);
@@ -16,10 +17,12 @@ export async function setupServer(app) {
   const mongoDb = mongoClient.db();
 
   const eventDAL = createEventDAL(Knex);
-  const ticketDAL = createTicketDAL(Knex);
   const settingsDAL = createSettingsDAL(mongoDb);
 
-  setupRoutes(app, { eventDAL, ticketDAL, settingsDAL });
+  const settings = settingsController({ settingsDAL });
+  const events = eventsController({eventsDAL: eventDAL})
+
+  setupRoutes(app, { eventsController: events, settingsController: settings });
 
   app.listen(3000, () => {
     console.log('Server Started');

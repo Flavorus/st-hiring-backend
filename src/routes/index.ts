@@ -25,6 +25,8 @@ export const setupRoutes = (
   app.get('/events', asyncHandler(events.getEvents));
   app.get('/settings', asyncHandler(settings.getSettings));
   app.post('/settings', validateSettings, asyncHandler(settings.postSettings));
+  // todo implement ticket routes
+  app.get('/tickets/:eventId', ()=>{} ); 
 
   app.use((err, _req, res, _next) => {
     console.error(err);

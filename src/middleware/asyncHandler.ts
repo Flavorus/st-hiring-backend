@@ -5,6 +5,7 @@ export const asyncHandler = (fn: (req: Request, res: Response) => Promise<any>) 
     try {
       await fn(req, res);
     } catch (error) {
+      // catch the error and pass it to the next middleware (error handler)
       next(error);
     }
   };

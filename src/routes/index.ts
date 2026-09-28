@@ -22,7 +22,7 @@ export const setupRoutes = (
   app.post('/settings', validateSettings, asyncHandler(settingsController.postSettings));
   // todo implement ticket routes
   app.get('/tickets/:eventId', ()=>{} ); 
-
+  // global error handler to avoid adding try/catch in every controller method
   app.use((err, _req, res, _next) => {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

@@ -1,6 +1,6 @@
 # Eventim Backend Test
 
-Welcome to the Eventim backend test for new hires (Senior Level). The purpose of this test is to evaluate how you work with an existing codebase, extend it with new functionality, and take ownership of code quality.
+Welcome to the Eventim backend test for new hires. The purpose of this test is to evaluate how you work with an existing codebase and extend it with new functionality.
 
 ## Tech Stack
 
